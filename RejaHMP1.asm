@@ -2,6 +2,7 @@
 section .data
 
 outpt times 66 db 0x0
+deciOutput dq 0
 
 section .text
 global main
@@ -42,7 +43,7 @@ main:
     
     conv:
     PRINT_STRING "Enter a number: "
-    GET_DEC 8, rax
+    GET_HEX 8, rax
     NEWLINE
     PRINT_STRING "Enter its radix: "
     GET_DEC 1, bl
@@ -52,7 +53,13 @@ main:
     JG err
     CMP BL, 2
     JL err
+    call xtodec
+    PRINT_STRING "Output (Decimal): "
+    PRINT_DEC 8, [deciOutput]
+    NEWLINE
     
+    JMP fin
+
     ;TODO check rax is a valid radix-n number
     
     err:
@@ -63,6 +70,9 @@ main:
     PRINT_STRING "Invalid radix-"
     PRINT_DEC 1, bl
     PRINT_STRING " number!"
+    NEWLINE
+    err3:
+    PRINT_STRING "Invalid number!"
     NEWLINE
     fin:
     PRINT_STRING "--Program Terminated--"
@@ -102,4 +112,44 @@ dectox:
         dec rcx
         jmp L4
     fin2:
+    ret
+
+xtodec:
+    MOV R8, RAX
+    XOR RCX, RCX
+    CHECK_DIGITS:
+        MOV R9, R8
+        AND R9, 0xF
+               
+        MOV RDI, RBX
+        CMP RCX, 1
+        JE L5
+        CMP RCX, 2
+        JGE L6
+        
+        add qword [deciOutput], r9  
+        JMP increase
+        L5:
+            IMUL R9, RDI
+            ADD qword [deciOutput], r9
+            JMP increase
+        L6:
+            MOV R10, RDI
+            MOV R11, RCX
+            DEC R11
+            power:
+                IMUL R10, RDI
+                DEC R11
+                CMP R11, 0
+                JNE power
+             IMUL R9, R10
+             ADD qword [deciOutput], r9
+   
+        increase:
+            INC RCX 
+ 
+        SHR R8, 4  
+        CMP R8, 0 
+        JNZ CHECK_DIGITS
+        
     ret
