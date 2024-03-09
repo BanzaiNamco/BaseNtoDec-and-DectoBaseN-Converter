@@ -26,8 +26,8 @@ main:
     GET_DEC 1, bl
     NEWLINE
     NEWLINE
-    ;TODO CHECK rax is a valid dec number
     
+    ; error checking (valid radix)
     CMP bl, 16
     JG err
     CMP bl, 2
@@ -49,10 +49,25 @@ main:
     GET_DEC 1, bl
     NEWLINE
     NEWLINE
+    
+    ;error checking (valid radix)
     CMP BL, 16
     JG err
     CMP BL, 2
     JL err
+    
+    ;error checking (valid number)
+    mov r8, rax
+    valid?:
+        xor r9, r9
+        shrd r9, r8, 4
+        shr r9, 60
+        CMP r9b, bl
+        JGE err2
+        SHR r8, 4
+        CMP r8, 0
+        JNE valid?
+    
     call xtodec
     PRINT_STRING "Output (Decimal): "
     PRINT_DEC 8, [deciOutput]
@@ -71,6 +86,7 @@ main:
     PRINT_DEC 1, bl
     PRINT_STRING " number!"
     NEWLINE
+    JMP fin
     err3:
     PRINT_STRING "Invalid number!"
     NEWLINE
