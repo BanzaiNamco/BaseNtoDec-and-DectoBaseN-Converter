@@ -1,3 +1,5 @@
+; Rejano, Hans Martin & Uy, Orrin Landon S16
+
 %include "io64.inc"
 section .data
 
